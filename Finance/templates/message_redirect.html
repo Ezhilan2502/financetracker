@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if messages %}
+    <div id="messageBox" class="message-box">
+        {% for message in messages %}
+            <p class="{% if message.tags == 'success' %}success-message{% else %}error-message{% endif %}">
+                {{ message }}
+            </p>
+        {% endfor %}
+        <button onclick="redirectNow()">OK</button>
+    </div>
+
+    <script>
+        let redirectURL = "{{ redirect_url|default:'' }}";
+
+        function redirectNow() {
+            if (redirectURL) {
+                window.location.href = redirectURL;
+            }
+        }
+
+        // Auto-redirect after 2 seconds
+        setTimeout(() => {
+            redirectNow();
+        }, 2000);
+    </script>
+    {% endif %}
+{% endblock %}

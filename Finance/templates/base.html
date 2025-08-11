@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    
+    <div class="base-container">
+        <h1>Personal Finance Tracker</h1>
+    </div>
+    <nav>
+        {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'transaction_list' %}">Transactions</a>
+      <a href="{% url 'goal_list' %}">Goal</a>
+      <a href="{% url 'monthly_export' %}">Export</a>
+      <a href="{% url 'logout_view' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'register' %}">Register</a>
+      <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+    </nav>
+    
+    {% block content %}
+    {% endblock %}
+    
+    
+</body>
+</html>

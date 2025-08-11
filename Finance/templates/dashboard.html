@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="dashboard-container">
+    <h2>Your Finance Dashboard</h2>
+    <h3>Filter by Month & Year</h3>
+<form method="get">
+    <label for="month">Month:</label>
+    <select name="month" id="month">
+        <option value="">--Select--</option>
+        <option value="1" {% if selected_month == "1" %}selected{% endif %}>January</option>
+        <option value="2" {% if selected_month == "2" %}selected{% endif %}>February</option>
+        <option value="3" {% if selected_month == "3" %}selected{% endif %}>March</option>
+        <option value="4" {% if selected_month == "4" %}selected{% endif %}>April</option>
+        <option value="5" {% if selected_month == "5" %}selected{% endif %}>May</option>
+        <option value="6" {% if selected_month == "6" %}selected{% endif %}>June</option>
+        <option value="7" {% if selected_month == "7" %}selected{% endif %}>July</option>
+        <option value="8" {% if selected_month == "8" %}selected{% endif %}>August</option>
+        <option value="9" {% if selected_month == "9" %}selected{% endif %}>September</option>
+        <option value="10" {% if selected_month == "10" %}selected{% endif %}>October</option>
+        <option value="11" {% if selected_month == "11" %}selected{% endif %}>November</option>
+        <option value="12" {% if selected_month == "12" %}selected{% endif %}>December</option>
+    </select>
+
+    <label for="year">Year:</label>
+    <select name="year" id="year">
+        <option value="">--Select--</option>
+        <option value="2025" {% if selected_year == "2025" %}selected{% endif %}>2025</option>
+        <option value="2026" {% if selected_year == "2026" %}selected{% endif %}>2026</option>
+        <option value="2027" {% if selected_year == "2027" %}selected{% endif %}>2027</option>
+        
+    </select>
+
+    <div class="dash-filter">
+        <button type="submit">Filter</button>
+        <a href="{% url 'dashboard' %}">Reset</a>
+  
+</form>
+
+    
+
+    </div>
+</form>
+
+
+    <div class="dashboard-cards">
+        <div class="card">
+            <h5>Total Income</h5>
+            <h3>₹{{ total_income|floatformat:2 }}</h3>
+        </div>
+        <div class="card">
+            <h5>Total Expense</h5>
+            <h3>₹{{ total_expense|floatformat:2 }}</h3>
+        </div>
+        <div class="card">
+            <h5>Savings</h5>
+            <h3>₹{{ savings|floatformat:2 }}</h3>
+        </div>
+        <div class="card">
+            <h5>Balance Amount</h5>
+            <h3>₹{{ balance|floatformat:2 }}</h3>
+        </div>
+    </div>
+
+    <div class="goal-section">
+        <h4>Financial Goal</h4>
+        {% if total_goal_target > 0 %}
+            <p>You've saved ₹{{ total_goal_saved|floatformat:2 }} out of ₹{{ total_goal_target|floatformat:2 }} towards all your goals.</p>
+            <p>Progress: {{ progress_percentage }}%</p>
+        {% else %}
+            <p>No financial goal set yet. <a href="{% url 'add_goal' %}">Set a goal!</a></p>
+        {% endif %}
+    </div>
+
+    <div class="chart-section">
+        <h4>Expense Distribution by Category</h4>
+        <div class="chart-wrapper"><canvas id="expensePieChart"></canvas></div>
+    </div>
+
+    <div class="chart-section">
+        <h4>Goal Contributions</h4>
+        <div class="chart-wrapper"><canvas id="contributionPieChart"></canvas></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const expenseChartDataJson = JSON.parse('{{ expense_chart_data_json|escapejs }}');
+    const ctx = document.getElementById('expensePieChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: expenseChartDataJson.labels,
+            datasets: [{
+                data: expenseChartDataJson.data,
+                backgroundColor: expenseChartDataJson.backgroundColor,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'Expense Breakdown by Category'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('en-IN', {
+                                    style: 'currency',
+                                    currency: 'INR'
+                                }).format(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const contributionChartDataJson = JSON.parse('{{ contribution_chart_data_json|escapejs }}');
+    const ctxContrib = document.getElementById('contributionPieChart').getContext('2d');
+
+    new Chart(ctxContrib, {
+        type: 'pie',
+        data: {
+            labels: contributionChartDataJson.labels,
+            datasets: [{
+                data: contributionChartDataJson.data,
+                backgroundColor: contributionChartDataJson.backgroundColor,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'Goal Contributions Breakdown'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('en-IN', {
+                                    style: 'currency',
+                                    currency: 'INR'
+                                }).format(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

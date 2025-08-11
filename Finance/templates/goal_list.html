@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<h2 class="goal-header">Financial Goals</h2>
+
+<a class="add-goal-btn" href="{% url 'add_goal' %}">➕ Add New Goal</a>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if goals %}
+<div class="goal-list-container">
+    {% for goal in goals %}
+    <div class="goal-card">
+        <h2 class="goal-name">{{ goal.name }}</h2>
+        <ul class="goal-info">
+            <li><strong>Status:</strong>
+                {% if goal.current_saved_amount >= goal.target_amount %}
+                    ✅ Completed
+                {% else %}
+                    🔄 In Progress
+                {% endif %}
+            </li>
+            <li><strong>Target:</strong> ₹{{ goal.target_amount|floatformat:2 }}</li>
+            <li><strong>Saved:</strong> ₹{{ goal.current_saved_amount|floatformat:2 }}</li>
+            <li><strong>Remaining:</strong> ₹{{ goal.amount_remaining|floatformat:2 }}</li>
+            <li><strong>Progress:</strong> {{ goal.percentage_complete|floatformat:2 }}%</li>
+        </ul>
+
+        <div class="goal-chart">
+            <canvas id="goalChart-{{ goal.id }}" width="150" height="150"></canvas>
+        </div>
+
+        {% if goal.target_date %}
+        <ul class="goal-dates">
+            <li><strong>Target Date:</strong> {{ goal.target_date|date:"F j, Y" }}</li>
+            {% if goal.current_saved_amount >= goal.target_amount %}
+                <li>🎉 Achieved on Time</li>
+            {% else %}
+                <li>📅 Days Remaining: {{ goal.days_remaining }} days</li>
+                <li>📈 Monthly Contribution Needed: ₹{{ goal.monthly_contribution_needed|floatformat:2 }}</li>
+            {% endif %}
+        </ul>
+        {% endif %}
+
+        <div class="goal-actions">
+            <a href="{% url 'contribute_to_goal' goal.id %}">Contribute</a> |
+            <a href="{% url 'edit_goal' goal.id %}">Edit</a> |
+            <a href="{% url 'delete_goal' goal.id %}">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p class="no-goals-msg">You don't have any financial goals yet! 
+        <a href="{% url 'add_goal' %}">Add your goal now</a>
+    </p>
+{% endif %}
+
+<script>
+    const goalsChartData = JSON.parse('{{ goals_chart_data_json|escapejs }}');
+    goalsChartData.forEach(goal => {
+        const ctx = document.getElementById('goalChart-' + goal.id).getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: goal.chart_data,
+            options: {
+                responsive: false,
+                maintainAspectRatio: true,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                let label = tooltipItem.label || '';
+                                if (label) label += ': ';
+                                label += '₹' + tooltipItem.raw.toFixed(2);
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

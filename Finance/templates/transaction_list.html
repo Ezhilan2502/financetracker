@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="transaction">
+    
+<h2>Your Transactions</h2>
+<br>
+
+<a href="{% url 'add_transaction' %}">Add New Transaction</a>
+</div>
+
+<form method="get" style="margin-bottom:20px;">
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" value="{{ filters.start_date }}">
+
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date" value="{{ filters.end_date }}">
+
+    <label for="category">Category:</label>
+    <select id="category" name="category">
+        <option value="all" {% if filters.category == 'all' %}selected{% endif %}>All</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if filters.category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+
+    </select>
+
+    <label for="transaction_type">Type:</label>
+    <select id="transaction_type" name="transaction_type">
+        <option value="all" {% if filters.transaction_type == 'all' %}selected{% endif %}>All</option>
+        {% for key, val in transaction_types %}
+            <option value="{{ key }}" {% if filters.transaction_type == key %}selected{% endif %}>{{ val }}</option>
+        {% endfor %}
+    </select>
+
+    <div class="dash-filter">
+        <button type="submit">Filter</button>
+        <a href="{% url 'transaction_list' %}">Reset</a>
+    </div>
+</form>
+<br>
+
+
+
+<!-- Transactions Table -->
+<table border="1" cellpadding="5" cellspacing="0" style="width:100%; max-width:900px;">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for txn in transactions %}
+        <tr>
+            <td>{{ txn.date }}</td>
+            <td>{{ txn.title }}</td>
+            <td>₹{{ txn.amount }}</td>
+            <td>{{ txn.get_transaction_type_display }}</td>
+            <td>{{ txn.category }}</td>
+            <td>
+                <a href="{% url 'edit_transaction' txn.id %}">Edit</a> |
+                <a href="{% url 'delete_transaction' txn.id %}">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No transactions found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br><br>
+<!-- Expense Pie Chart -->
+ <h2>Expense Distribution by Category</h2>
+ <div class="expense-chart">
+
+
+    <canvas id="expensePieChart"></canvas>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const expenseChartData = JSON.parse('{{ expense_chart_data_json|escapejs }}');
+
+    const ctx = document.getElementById('expensePieChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: expenseChartData.labels,
+            datasets: [{
+                data: expenseChartData.data,
+                backgroundColor: expenseChartData.backgroundColor,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Expense Breakdown by Category'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

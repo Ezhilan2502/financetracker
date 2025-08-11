@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Goal</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="delete-container">
+        <h2>Are you sure you want to delete "{{ goal.name }}"?</h2>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Yes, Delete</button><br>
+            <a href="{% url 'goal_list' %}">Cancel</a>
+        </form>
+    </div>
+
+</body>
+</html>

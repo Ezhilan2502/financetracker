@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    
+</head>
+<body>
+  
+  
+    <div class="login-container">
+        <h2>Login</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required>
+
+            <label for="email">Email:</label>
+            <input type="text" name="email" id="email" required>
+        
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password"required>
+
+            <button type="submit">Login</button>
+            <button><a href="{% url 'forget_password' %}">Forgot Password</a></button>
+    </form>
+            Do you wants to logout? <a href="{% url 'logout_view' %}">Logout</a>
+
+    </div>
+    
+    
+</body>
+</html>
+{% endblock %}
