@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#$m0oqm=phvt9a=by@a0r8k(tl&@-h)jstp8=8#y$h3+(ip)aw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['Tracker.on-render.com']
 
 
 # Application definition
@@ -76,17 +77,20 @@ WSGI_APPLICATION = 'Tracker.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import os
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'finance_db',
-        'HOST': 'localhost',  
-        'PORT': '',  
+        'HOST': 'localhost',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
+            'trusted_connection': 'yes',
+            'encrypt': 'no',  # Disable SSL encryption to bypass trust error
         },
     }
 }
+
 
 
 # Password validation
@@ -124,6 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Default primary key field type
