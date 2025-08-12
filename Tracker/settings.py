@@ -82,11 +82,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'finance_db',
-        'HOST': 'localhost',
+        'USER': 'financeuser',
+        'PASSWORD': 'financetracker',
+        'HOST': 'EZHILAN-2024',
+        'PORT': '1433',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
-            'trusted_connection': 'yes',
-            'encrypt': 'no',  # Disable SSL encryption to bypass trust error
+            'trustServerCertificate': 'yes',
         },
     }
 }
